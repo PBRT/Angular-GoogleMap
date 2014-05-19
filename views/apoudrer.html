@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<title>Shortcut Browser</title>
+<link rel="shortcut icon" href="img/favicon.ico" />
+<style>
+    html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+    }
+    #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+    }
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.3/angular.min.js"></script>
+<link href="http://netdna.bootstrapcdn.com/bootswatch/3.1.1/amelia/bootstrap.min.css" rel="stylesheet"/>
+<!--  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyAaDET0PdAA9c6BKd4r7c5ZgwT9_19vJSk&sensor=false"></script>
+-->
+<script src="js/jquery.geocomplete.min.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
+<script>
+
+
+
+var directionsDisplay;
+var directionsServiceD1 = new google.maps.DirectionsService();
+var directionsServiceD2 = new google.maps.DirectionsService();
+var directionsServiceD3 = new google.maps.DirectionsService();
+
+var map;
+var clickListenner;
+
+//Marker of itinery
+var markerD1Start;
+var infowindowD1Start;
+
+var markerD1End;
+var infowindowD1End;
+
+var markerD2Start;
+var infowindowD2Start;
+
+var markerD2End;
+var infowindowD2End;
+
+var directionsDisplayD1;
+var directionsDisplayD2;
+var directionsDisplayD3;
+
+var eraseD1;
+var eraseD2;
+
+var distance1;
+var distance2;
+
+function initialize() {
+    markerD1Start=undefined;
+    infowindowD1Start = new google.maps.InfoWindow();
+    infowindowD1End = new google.maps.InfoWindow();
+    infowindowD2Start = new google.maps.InfoWindow();
+    infowindowD2End = new google.maps.InfoWindow();
+    markerD1End=undefined;
+    markerD2Start=undefined;
+    markerD2End=undefined;
+    eraseD1=false;
+    eraseD2=false;
+    showResults=false;
+    $('#result').hide();
+
+    $("#adresssstartD1").geocomplete().bind("geocode:result").bind("geocode:error").bind("geocode:multiple");
+    $("#adressesstopD1").geocomplete().bind("geocode:result").bind("geocode:error").bind("geocode:multiple");
+    $("#adresssstartD2").geocomplete().bind("geocode:result").bind("geocode:error").bind("geocode:multiple");
+    $("#adressesstopD2").geocomplete().bind("geocode:result").bind("geocode:error").bind("geocode:multiple");
+
+
+    directionsDisplayD1 = new google.maps.DirectionsRenderer({
+        polylineOptions: {
+            strokeColor: "red"
+        },
+        suppressMarkers : true
+    });
+
+    directionsDisplayD2 = new google.maps.DirectionsRenderer({
+        polylineOptions: {
+            strokeColor: "blue"
+        },
+        suppressMarkers : true
+    });
+
+    directionsDisplayD3 = new google.maps.DirectionsRenderer({
+        polylineOptions: {
+            strokeColor: "green"
+        },
+        suppressMarkers : true
+    });
+    var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+    var mapOptions = {
+        zoom:7,
+        center: chicago
+    }
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    directionsDisplayD1.setMap(map);
+    directionsDisplayD2.setMap(map);
+}
+
+function setAlertMessage(message){
+    $('#theAlert').html('<div class="alert alert-dismissable alert-warning" id="theAlert"><button type="button" class="close" data-dismiss="alert">×</button><h4 id="alertValue" style="text-align:center;">'+message+'</h4></div>');
+    $('#theAlert').show();
+}
+
+function removeListenner(){
+    google.maps.event.removeListener(clickListenner);
+}
+function addListenner(text, color, input1, input2, marker){
+
+    if(marker=='m1')
+        setAlertMessage('Place start place of driver one on the map');
+    if(marker=='m2')
+        setAlertMessage('Place end place of driver one on the map');
+    if(marker=='m3')
+        setAlertMessage('Place start place of driver two on the map');
+    if(marker=='m4')
+        setAlertMessage('Place end place of driver two on the map');
+    //Marker placement
+    clickListenner=google.maps.event.addListener(map, 'click', function(event) {
+
+        if(marker=='m1') {
+            if (markerD1Start == undefined)
+                markerD1Start = placeMarker(event.latLng, text, color);
+            else {
+                markerD1Start.setPosition(event.latLng);
+                markerD1Start.setMap(map);
+            }
+            infowindowD1Start.setContent('<p style="color: black">Start place Driver One</p>');
+            infowindowD1Start.open(map, markerD1Start);
+            $('#theAlert').hide();
+
+        }else if(marker=="m2"){
+            if (markerD1End == undefined)
+                markerD1End = placeMarker(event.latLng, text, color);
+            else {
+                markerD1End.setPosition(event.latLng);
+                markerD1End.setMap(map);
+            }
+            infowindowD1End.setContent('<p style="color: black">End place Driver One</p>');
+            infowindowD1End.open(map, markerD1End);
+            $('#theAlert').hide();
+
+        }else if(marker=="m3"){
+            if (markerD2Start == undefined)
+                markerD2Start = placeMarker(event.latLng, text, color);
+            else {
+                markerD2Start.setPosition(event.latLng);
+                markerD2Start.setMap(map);
+            }
+            infowindowD2Start.setContent('<p style="color: black">Start place Driver Two</p>');
+            infowindowD2Start.open(map,markerD2Start);
+            $('#theAlert').hide();
+
+        }else if(marker=="m4"){
+            if (markerD2End == undefined)
+                markerD2End = placeMarker(event.latLng, text, color);
+            else {
+                markerD2End.setPosition(event.latLng);
+                markerD2End.setMap(map);
+            }
+            infowindowD2End.setContent('<p style="color: black">End place Driver Two</p>');
+            infowindowD2End.open(map, markerD2End);
+            $('#theAlert').hide();
+        }
+
+        //Update of edit text
+        document.getElementById(input1).value=event.latLng.lat();
+        document.getElementById(input2).value=event.latLng.lng();
+
+        //Draw path if start and end are defined
+        if((markerD1Start != undefined)&&(markerD1End != undefined)){
+            eraseD1=true;
+            tracePath(markerD1Start.getPosition(), markerD1End.getPosition(),'1');
+        }
+        if((markerD2Start != undefined)&&(markerD2End != undefined)){
+            eraseD2=true;
+            tracePath(markerD2Start.getPosition(), markerD2End.getPosition(),'2');
+        }
+
+        //Delete of the listenner
+        removeListenner();
+    });
+}
+
+function tracePath(start, end, driver){
+
+    var request = {
+        origin:start,
+        destination:end,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+
+    if(driver=='1') {
+        directionsDisplayD1.setMap(map);
+        directionsServiceD1.route(request, function (response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplayD1.setDirections(response);
+                var time=secTo(response.routes[0].legs[0].duration.value);
+                distance1=(response.routes[0].legs[0].distance.value/1000);
+                $('#distanceD1').text("Distance : "+(response.routes[0].legs[0].distance.value/1000) + " (km)");
+                $('#durationD1').text("Duration : "+time);
+            } else
+                console.log(response);
+        });
+    } else if (driver=='2'){
+        directionsDisplayD2.setMap(map);
+        directionsServiceD2.route(request, function (response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplayD2.setDirections(response);
+                distance2=(response.routes[0].legs[0].distance.value/1000);
+                var time=secTo(response.routes[0].legs[0].duration.value);
+                $('#distanceD2').text("Distance : "+(response.routes[0].legs[0].distance.value/1000) + " (km)");
+                $('#durationD2').text("Duration : "+time );
+            } else
+                console.log(response);
+        });
+    }
+}
+
+function secTo(sec) {
+    var sec_num = parseInt(sec, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = hours+'h'+minutes+'min'+seconds+'s';
+    return time;
+}
+
+function placeMarker(location, text, color) {
+    var marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: "OOOOO",
+        icon: 'http://maps.google.com/mapfiles/ms/icons/'+color+'-dot.png'
+    });
+    return marker;
+}
+
+
+
+function clearValues(driver){
+    if((eraseD1==true)||(eraseD2==true)) {
+        document.getElementById('positionX' + driver + 'start').value = '';
+        document.getElementById('positionY' + driver + 'start').value = '';
+        document.getElementById('positionX' + driver + 'end').value = '';
+        document.getElementById('positionY' + driver + 'end').value = '';
+    }
+
+    if((eraseD1==true)&&(driver==1)){
+        markerD1Start.setMap(null);
+        markerD1End.setMap(null);
+        directionsDisplayD1.setMap( null);
+        markerD1End=undefined;
+        markerD1Start=undefined;
+        $('#distanceD1').text('Distance : Undefined');
+        $('#durationD1').text('Duration : Undefined');
+        eraseD1=false;
+        distance1=0;
+        $('#result').hide();
+    } else if((eraseD2==true)&&(driver==2)){
+        markerD2Start.setMap(null);
+        markerD2End.setMap(null);
+        directionsDisplayD2.setMap(null);
+        markerD2End=undefined;
+        markerD2Start=undefined;
+        distance2=0;
+        $('#distanceD2').text('Distance : Undefined');
+        $('#durationD2').text('Duration : Undefined');
+        eraseD2=false;
+        $('#result').hide();
+    }
+}
+
+function computeShortPath(){
+
+    //If all data are properly filled
+    if(eraseD1&&eraseD2){
+        var wp = [];
+
+        if(distance1>=distance2){
+            wp.push({location: markerD2Start.getPosition(), stopover: false});
+            wp.push({location: markerD2End.getPosition(), stopover: false});
+
+            var request = {
+                origin: markerD1Start.getPosition(),
+                destination: markerD1End.getPosition(),
+                travelMode: google.maps.TravelMode.DRIVING,
+                waypoints: wp
+            };
+            directionsDisplayD3.setMap(map);
+            directionsServiceD3.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplayD3.setDirections(response);
+                    var time=secTo(response.routes[0].legs[0].duration.value);
+                    var detourDistance=((response.routes[0].legs[0].distance.value/1000)-distance1);
+                    var detourPerCent=(detourDistance/distance1)*100;
+                    $('#result').show();
+                    $('#distanceResultat').text("Distance :" +(response.routes[0].legs[0].distance.value/1000) + " (km)" );
+                    $('#durationResultat').text("Duration : "+time );
+                    $('#Driver').text("Driver selected : Driver 1" );
+                    $('#DetourDistance').text("Detour distance :" + detourDistance + " (km)");
+                    $('#DetourPerCent').text("Detour % :" + detourPerCent + "(%)" );
+                } else
+                    console.log(response);
+            });
+
+        }else{
+            wp.push({location: markerD1Start.getPosition(), stopover: false});
+            wp.push({location: markerD1End.getPosition(), stopover: false});
+
+            var request = {
+                origin: markerD2Start.getPosition(),
+                destination: markerD2End.getPosition(),
+                travelMode: google.maps.TravelMode.DRIVING,
+                waypoints: wp
+            };
+            directionsDisplayD3.setMap(map);
+            directionsServiceD3.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplayD3.setDirections(response);
+                    var time=secTo(response.routes[0].legs[0].duration.value);
+                    var detourDistance=((response.routes[0].legs[0].distance.value/1000)-distance2);
+                    var detourPerCent=(detourDistance/distance2)*100;
+                    $('#result').show();
+                    $('#distanceResultat').text("Distance :  " +(response.routes[0].legs[0].distance.value/1000) + " (km)" );
+                    $('#durationResultat').text("Duration : "+time );
+                    $('#Driver').text("Driver selected : Driver 2" );
+                    $('#DetourDistance').text("Detour distance :  " + detourDistance + " (km)");
+                    $('#DetourPerCent').text("Detour % :  " + detourPerCent + "(%)" );
+                } else
+                    console.log(response);
+            });
+        }
+
+
+
+
+
+
+    }else{
+        alert("You must fill all fields")
+    }
+
+
+
+}
+function clearAll(){
+    clearValues(1);
+    clearValues(2);
+    directionsDisplayD3.setMap(null);
+    $('#myTab a[href="#gps"]').tab('show')
+}
+
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+
+
+</script>
+
+</head>
+<body>
+
+<div class="navbar navbar-default">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">SHORTCUT BROWSER</a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav ">
+            <li><a href="#">Home </a></li>
+            <li><a href="#">The implementation</a></li>
+            <li><a href="#">About Me </a></li>
+        </ul>
+    </div>
+</div>
+
+
+<ul class="nav nav-tabs" style="margin-bottom: 15px;">
+    <li class="active"><a href="#gps" data-toggle="tab"><span class="glyphicon glyphicon-globe"></span> &nbsp;&nbsp;G.P.S. coordinates</a></li>
+    <li class=""><a href="#adresses" data-toggle="tab"><span class="glyphicon glyphicon-home"></span> &nbsp;&nbsp;Adresses</a></li>
+    <li class="" id="result"><a href="#results" data-toggle="tab"><span class="glyphicon glyphicon-home"></span> &nbsp;&nbsp;Results</a></li>
+
+</ul>
+<div id="myTabContent" class="tab-content">
+<div class="tab-pane fade active in" id="gps">
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        Driver One
+                        <span class="glyphicon glyphicon-remove" style="float: right" onclick="clearValues('1')"></span>
+                    </h3>
+                </div>
+                <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+                    <div class="row" style="padding-left:10px;">
+                        <div class="col-md-6">
+
+                            <legend>
+                                <h4>Start
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addListenner('Start Driver 1' , 'red', 'positionX1start', 'positionY1start', 'm1');" style="float:right">
+                                        <span class="glyphicon glyphicon-map-marker"></span>
+                                    </button>
+                                </h4>
+                            </legend>
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="positionX1start" placeholder="Position X">
+                                </br>
+                                <input type="number" class="form-control" id="positionY1start" placeholder="Position Y">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
+                            <legend>
+                                <h4>Destination
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addListenner('End Driver 1' , 'red', 'positionX1end', 'positionY1end', 'm2');" style="float:right">
+                                        <span class="glyphicon glyphicon-map-marker"></span>
+                                    </button>
+                                </h4>
+                            </legend>
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="positionX1end" placeholder="Position X">
+                                </br>
+                                <input type="number" class="form-control" id="positionY1end" placeholder="Position Y">
+                            </div>
+                        </div>
+                        <legend>
+                            <h4>Travel informations</h4>
+                        </legend>
+                        <div class="form-group">
+                            <h4 id="distanceD1"> Distance : Undefined</h4>
+                            </br>
+                            <h4 id="durationD1"> Duration : Undefined</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        Driver Two
+                        <span class="glyphicon glyphicon-remove" style="float: right" onclick="clearValues('2')"></span>
+                    </h3>
+                </div>
+                <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+                    <div class="col-md-6">
+                        <legend>
+                            <h4>Start
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addListenner('Start Driver 2' , 'blue', 'positionX2start', 'positionY2start', 'm3');" style="float:right">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                </button>
+                            </h4>
+                        </legend>
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="positionX2start" placeholder="Position X">
+                            </br>
+                            <input type="number" class="form-control" id="positionY2start" placeholder="Position Y">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <legend>
+                            <h4>Destination
+                                <button type="button" onclick="addListenner('End Driver 2' , 'blue', 'positionX2end', 'positionY2end', 'm4');" class="btn btn-primary btn-sm" style="float:right">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                </button>
+                            </h4>
+                        </legend>
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="positionX2end" placeholder="Position X">
+                            </br>
+                            <input type="number" class="form-control" id="positionY2end" placeholder="Position Y">
+                        </div>
+                    </div>
+                    <legend>
+                        <h4>Travel informations</h4>
+                    </legend>
+                    <div class="form-group">
+                        <h4 id="distanceD2"> Distance : Undefined</h4>
+                        </br>
+                        <h4 id="durationD2"> Duration : Undefined</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-lg btn-block" onClick="computeShortPath();">Find the best solution</button>
+</div>
+<div class="tab-pane fade" id="adresses">
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        Driver One
+                    </h3>
+                </div>
+                <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+
+                    <legend>
+                        <h4>Travel informations</h4>
+                    </legend>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="adresssstartD1" placeholder="Departure adresse">
+                        </br>
+                        <input type="text" class="form-control" id="adressesstopD1" placeholder="End adresse">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-6">
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        Driver Two
+                    </h3>
+                </div>
+                <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+
+                    <legend>
+                        <h4>Travel informations</h4>
+                    </legend>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="adresssstartD2" placeholder="Departure adresse">
+                        </br>
+                        <input type="text" class="form-control" id="adressesstopD2" placeholder="End adresse">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-lg btn-block" onClick="computeShortPath();">Find the best solution</button>
+</div>
+<div class="tab-pane fade" id="results">
+
+
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-user"></span>
+                    Scheduled Trip
+                </h3>
+            </div>
+            <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+                <div class="form-group">
+                    <h3 id="distanceResultat"> Distance : Undefined</h3>
+                    </br>
+                    <h3 id="durationResultat"> Duration : Undefined</h3>
+                    </br>
+                    <h3 id="Driver"> Driver selected : Undefined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-user"></span>
+                    Detour details
+                </h3>
+            </div>
+            <div class="panel-body" style="padding-left:10px;padding-right:10px;">
+                <div class="form-group">
+                    <h3 id="DetourDistance"> Detour distance : Undefined</h3>
+                    </br>
+                    <h3 id="DetourPerCent"> Detour % : Undefined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-success btn-lg btn-block" href="#adresses" onClick="clearAll();">Clear and restart</button>
+
+</div>
+
+</div>
+<div id="theAlert" ></div>
+<div id="map-canvas"></div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+div(ng-init="init()")
+    .row
+        .col-md-6
+            .panel.panel-primary
+                .panel-heading
+                    h2(class="panel-title")
+                        span(class="glyphicon glyphicon-user")
+                            h1(class="panel-title", style="float:right")&nbsp; DRIVER ONE - Click on Start/End marker and click on the map
+                        span(class="glyphicon glyphicon-remove", style="float: right", ng-click="clearTravel(1)")
+
+                .panel-body
+                    .row
+                        .col-md-6
+                            legend
+                                h4 Start
+                                    button(type="button",class="btn btn-primary btn-sm",style="float:right", ng-click="startD1()")
+                                        span(class="glyphicon glyphicon-map-marker")
+                            .form-group
+                                input(type="number",class="form-control",ng-model="gpsD1XStart",placeholder="Position X")
+                                br
+                                input(type="number",class="form-control",ng-model="gpsD1YStart",placeholder="Position Y")
+                        .col-md-6
+                            legend
+                                h4 End
+                                    button(type="button",class="btn btn-primary btn-sm",style="float:right",ng-click="endD1()" )
+                                        span(class="glyphicon glyphicon-map-marker")
+                            .form-group
+                                input(type="number",class="form-control",ng-model="gpsD1XEnd",placeholder="Position X")
+                                br
+                                input(type="number",class="form-control",ng-model="gpsD1YEnd",placeholder="Position Y")
+                                br
+
+                        legend
+                            h4 Travel details
+                        .form-group
+                            .col-md-6
+                                h4(ng-model="distanceD1") {{distanceD1}}
+                                br
+                                h4(ng-model="durationD1") {{durationD1}}
+
+        .col-md-6
+            .panel.panel-primary
+                .panel-heading
+                    h2(class="panel-title")
+                        span(class="glyphicon glyphicon-user")
+                            h1(class="panel-title", style="float:right")&nbsp; Driver Two - Click on Start/End marker and click on the map
+                        span(class="glyphicon glyphicon-remove", style="float: right", ng-click="clearTravel(2)")
+                .panel-body
+                    .row
+                        .col-md-6
+                            legend
+                                h4 Start
+                                    button(type="button",class="btn btn-info btn-sm",style="float:right" ,ng-click="startD2()")
+                                        span(class="glyphicon glyphicon-map-marker")
+                            .form-group
+                                input(type="number",class="form-control",ng-model="gpsD2XStart",placeholder="Position X")
+                                br
+                                input(type="number",class="form-control",ng-model="gpsD2YStart",placeholder="Position Y")
+                        .col-md-6
+                            legend
+                                h4 End
+                                    button(type="button",class="btn btn-info btn-sm",style="float:right", ng-click="endD2()" )
+                                        span(class="glyphicon glyphicon-map-marker")
+                            .form-group
+                                input(type="number",class="form-control",ng-model="gpsD2XEnd",placeholder="Position X")
+                                br
+                                input(type="number",class="form-control",ng-model="gpsD2YEnd",placeholder="Position Y")
+                                br
+                        legend
+                            h4 Travel details
+                        .form-group
+                            .col-md-6
+                                h4(ng-model="distanceD2") {{distanceD2}}
+                                br
+                                h4(ng-model="durationD2") {{durationD2}}
+        button(type="button", class="btn btn-primary btn-lg btn-block", ng-click="computeShortestPath()") Find the best solution

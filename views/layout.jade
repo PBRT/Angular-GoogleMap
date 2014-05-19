@@ -1,0 +1,101 @@
+!!!
+html(ng-app="myApp")
+  head
+    meta(charset='utf8')
+    base(href='/')
+    title Shortcut browser
+
+    link(rel='stylesheet', href='/css/app.css')
+    link(rel="icon", href="/img/favicon.ico")
+    //Libs
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+    script(src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js")
+    script(src='js/lib/angular/angular.js', type='text/javascript')
+    link(rel='stylesheet', href='http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
+    link(rel='stylesheet', href='http://netdna.bootstrapcdn.com/bootswatch/3.1.1/amelia/bootstrap.min.css')
+
+    script(src='js/app.js')
+    script(src='js/services.js')
+    script(src='js/controllers.js')
+    script(src='js/filters.js')
+    script(src='js/Directives/directives.js')
+
+    //Controllers
+    script(src='js/Controllers/MapCtrl.js')
+    script(src='js/Controllers/GpsCtrl.js')
+    script(src='js/Controllers/AdresseCtrl.js')
+    script(src='js/Controllers/ResultsCtrl.js')
+    script(src='js/Controllers/MainCtrl.js')
+
+    //Services
+    script(src='js/Services/Map.js')
+    script(src='js/lib/ui-utils.js', type='text/javascript')
+    script(src='js/lib/ui-map.js', type='text/javascript')
+    script(src='https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false', type='text/javascript')
+
+  body
+
+    a(href="https://github.com/PBRT")
+        img(style="position: absolute; top: 0; right: 0; border: 0;z-index:9999",src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67", alt="Fork me on GitHub", data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png")
+    div(class="modal fade", id="help")
+      .modal-dialog.modal-content
+          .modal-header
+              button(type="button",class="close",data-dismiss="modal",aria-hidden="true")&times;
+              h2.modal-title Help
+          .modal-body
+              p You have to find the shortest way between two path ? Relax, it does everything for you
+              p First, click on red marker on the left and then, click on the map to select your start point
+              p Do the same with all the others markers
+              p You can modify your start/end points when you want
+              p When you have finish, click on "Find the best solution" and check the path you MUST take
+              p If you want to reset points from driver one/two, simply click on the white cross.
+    div(class="modal fade", id="function")
+      .modal-dialog.modal-content
+        .modal-header
+            button(type="button",class="close",data-dismiss="modal",aria-hidden="true")&times;
+            h2.modal-title The application
+        .modal-body
+            p The goal of this web application is to find the shortest path enabling car pooling between two drivers.
+            p It compute which one driver has to pick up the other, based on distance calculation
+            p For example, Pierre has to drive from San Francisco to Boston, and Emily has to drive from Austin to Anchorage. Emily use the app and find which one has to take its own car to pick up the other.
+            p Moreover, the application display travel informations, provide by google map corresponding to the path finded.
+            p It's obviously not a revolution but it can quickly end idiot conflict concerning detour distances.
+
+    div(class="modal fade", id="about")
+        .modal-dialog.modal-content
+            .modal-header
+                button(type="button",class="close",data-dismiss="modal",aria-hidden="true")&times;
+                h2.modal-titleAbout Pierre BEARD
+            .modal-body
+                p I'am a young french developper, curious of the newest technologies
+                p I develop different kind of applications, from Android native to Web applications
+                p I just want to learn and discover, and make the technologie useful for everyone.
+                p Don't hesitate to contact me by mail (beardpierre@gmail.com) for giving your feedback.
+
+    div(class="navbar navbar-default navbar-fixed-top")
+        div(class="navbar-header")
+            a(class="navbar-brand", href="#") SHORTCUT BROWSER
+        div(class="navbar-collapse collapse navbar-responsive-collapse")
+            ul(class="nav navbar-nav ")
+                li
+                    a(data-toggle="modal", data-target="#help") Help
+                li
+                    a(data-toggle="modal", data-target="#function") The Goal
+                li
+                    a(data-toggle="modal", data-target="#about") About Me
+    div(ng-controller="MainCtrl")
+        ul(class="nav nav-tabs", style="margin-top: 50px;")
+            li(ng-class="{active:activeTab('/gps')}", style="width:34%;")
+                a(href="gps",data-toggle="tab", style="text-align:center")
+                    span(class="glyphicon glyphicon-globe") &nbsp;G.P.S. Coordinates
+            li(ng-class="{active:activeTab('/adresse')}",style="width:33%;")
+                a(href="adresse", data-toggle="tab", style="text-align:center")
+                    span(class="glyphicon glyphicon-home") &nbsp;&nbsp;Adresses
+            li(ng-class="{active:activeTab('/result')}",class="disabled", ng-disabled="resultEnabled",style="width:33%;")
+                a(href="result", data-toggle="tab", style="text-align:center")
+                    span(class="glyphicon glyphicon-globe") &nbsp;&nbsp;Results
+
+    div(data-role="content")
+        block body
+        div(ng-controller="MapCtrl", ng-init="init()")
+            div(id="map_canvas", ui-map="myMap", ui-event="{'map-click': 'addMarker($event, $params)'}",class="map",ui-options="mapOptions")

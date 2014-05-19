@@ -1,0 +1,31 @@
+.row
+    .col-md-6
+        .panel.panel-primary
+            .panel-heading
+                h2(class="panel-title")
+                    span(class="glyphicon glyphicon-user")
+                        h1(class="panel-title", style="float:right")&nbsp; Driver One
+                    span(class="glyphicon glyphicon-remove", style="float: right")
+
+            .panel-body(style="padding-left:10px;padding-right:10px;")
+                legend
+                    h4 Travel informations
+                .form-group
+                    input(type="text",class="form-control",ng-model="adresseD1XStart",placeholder="Departure adress")
+                    br
+                    input(type="text",class="form-control",ng-model="adresseD1XEnd",placeholder="Departure adress")
+    .col-md-6
+        .panel.panel-primary
+            .panel-heading
+                h2(class="panel-title")
+                    span(class="glyphicon glyphicon-user")
+                        h1(class="panel-title", style="float:right")&nbsp; Driver Two
+                    span(class="glyphicon glyphicon-remove", style="float: right")
+            .panel-body(style="padding-left:10px;padding-right:10px;")
+                legend
+                    h4 Travel informations
+                .form-group
+                    input(type="text",class="form-control",ng-model="adresseD2XStart",placeholder="Departure adress")
+                    br
+                    input(type="text",class="form-control",ng-model="adresseD2XEnd",placeholder="Departure adress")
+    button(type="button", class="btn btn-primary btn-lg btn-block") Find the best solution

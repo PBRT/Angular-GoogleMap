@@ -1,0 +1,31 @@
+div(ng-init="init()")
+    .row
+        .col-md-6
+            .panel.panel-primary
+                .panel-heading
+                    h2(class="panel-title")
+                        span(class="glyphicon glyphicon-user")
+                            h1(class="panel-title", style="float:right")&nbsp; Travel details
+                .panel-body
+                        .form-group
+                            h3(ng-model="distanceResult") {{distanceResult}}
+                            br
+                            h3(ng-model="durationResult") {{durationResult}}
+                            br
+                            h3(ng-model="driverResult") {{driverResult}}
+                            br
+
+        .col-md-6
+            .panel.panel-primary
+                .panel-heading
+                    h2(class="panel-title")
+                        span(class="glyphicon glyphicon-user")
+                            h1(class="panel-title", style="float:right")&nbsp; Detour details
+                .panel-body
+                    .form-group
+                        h3(ng-model="distanceDetour") {{distanceDetour}}
+                        br
+                        h3(ng-model="percentDetour") {{percentDetour}}
+                        br
+    button(type="button", class="btn btn-success btn-lg btn-block", href="gps", ng-click="clearAll()"
+    ) Clear all and restart
