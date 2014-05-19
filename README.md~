@@ -11,7 +11,7 @@ No more fight to determine the best shortcut.
 Simply clone this project, run ```npm install``` and then run ```node app.js``` and check your localhost (port:3000)
 
 ## DEMO
-You can find a live demonstration at http://shortcutbrowser.herokuapp.com
+You can find the demonstration a
 
 ## TECHNOLOGIES
 This applications has been build on express angular seed : https://github.com/btford/angular-express-seed
